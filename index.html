@@ -1465,20 +1465,20 @@ function renderTopSellers(){
     <div class="smini" style="border-color:#86efac"><div class="sv" style="color:var(--ok)">${bestDay?bestDay.str:'—'}</div><div class="sl">أفضل يوم مبيعات</div></div>
     <div class="smini" style="border-color:#86efac"><div class="sv" style="color:var(--ok)">${bestDay?fN(bestDay.val):'—'}</div><div class="sl">قيمة أفضل يوم</div></div>
     <div class="smini" style="border-color:#fca5a5"><div class="sv" style="color:var(--acc)">${worstDay&&worstDay!==bestDay?worstDay.str:'—'}</div><div class="sl">أدنى يوم مبيعات</div></div>`;
-  // Podium — ترتيب: 2 / 1 / 3
+  // Podium — ترتيب بالقيمة (نفس ترتيب الجدول)
   const medals=['🥇','🥈','🥉'];
   const podCls=['g','s','b'];
   const podOrder=[1,0,2];
   let podHTML='';
   podOrder.forEach(i=>{
-    if(!byCount[i]) return;
-    const v=byCount[i];
+    if(!byValue[i]) return;
+    const v=byValue[i];
     podHTML+=`<div class="pod-item">
       <div class="pod-name">${v.name.length>14?v.name.slice(0,13)+'…':v.name}</div>
       <div class="pod-box ${podCls[i]}">
         <div class="pod-medal">${medals[i]}</div>
         <div class="pod-cnt">${v.invC} ف.</div>
-        <div class="pod-amt">${fN(v.nBT).split('.')[0]} JD</div>
+        <div class="pod-amt">${fN(sMode?v.nBT:v.nBT+v.pBT).split('.')[0]} JD</div>
       </div>
     </div>`;
   });
