@@ -1009,7 +1009,7 @@ function renderKPI(){
     <div class="kcard w">
       <div class="klbl">طلبيات معلقة (قبل ضريبة)</div>
       <div class="kval">${fN(sPBT)}</div>
-      <div class="ksub">${pend.length.toLocaleString()} طلبية · إجمالي ${fN(sPAT)}</div>
+      <div class="ksub">${pend.length.toLocaleString()} طلبية · مرتجعات معلقة: ${fN(sPRet)}</div>
     </div>
     <div class="kcard a">
       <div class="klbl">إجمالي المرتجعات</div>
@@ -1018,8 +1018,8 @@ function renderKPI(){
     </div>
     <div class="kcard g">
       <div class="klbl">الإجمالي شامل المعلقة (قبل ض.)</div>
-      <div class="kval">${fN(netFinal+sPBT)}</div>
-      <div class="ksub">مكتملة + معلقة</div>
+      <div class="kval">${fN(netFinal+sPBT-sPRet)}</div>
+      <div class="ksub">مكتملة + معلقة − مرتجعات معلقة</div>
     </div>
     <div class="kcard">
       <div class="klbl">مجموع الوثائق</div>
