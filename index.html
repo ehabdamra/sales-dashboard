@@ -866,6 +866,7 @@ function parseF2(rows){
     const spName=strVal(r[11]);
     const cType=strVal(r[14]);
     const netBT=rawNet;  // col5 = Net Amount من النظام (شامل الضريبة — يُستخدم مباشرة)
+    // ملاحظة: disc محفوظة للتحقق فقط (netBT-disc+taxAmt = netAT)
     const isReturn=/return/i.test(oType);
     // Extract prefix from "JN35- 32332" → "JN35"
     const m=orderNo.match(/^([A-Z]{2}\d+)/);
@@ -876,7 +877,7 @@ function parseF2(rows){
     allRecs.push({
       src:'pend',date,dateStr:fmtD(date),dateISO:isoD(date),
       type:isReturn?'Return':'Invoice',docNo:orderNo,cCode,cName,cType,
-      netBT,netAT:totAmt,taxAmt,spCode:'',spName,pfx,shr,status:'pending'
+      netBT,disc,netAT:totAmt,taxAmt,spCode:'',spName,pfx,shr,status:'pending'
     });
     cnt++;
   }
@@ -1383,7 +1384,9 @@ function runVerify(){
   let r1E=0,r2E=0,negBad=0,zeroTax=0;
   allRecs.forEach(r=>{
     // Check: صافي قبل ض. + الضريبة = صافي بعد ض.
-    const diff=Math.abs((r.netBT+r.taxAmt)-r.netAT);
+    // ملف1: netBT+tax=netAT | ملف2: (netBT-disc)+tax=netAT (disc محفوظة لهذا الغرض)
+    const base=r.src==='pend'?(r.netBT-(r.disc||0)):r.netBT;
+    const diff=Math.abs((base+r.taxAmt)-r.netAT);
     if(r.src==='inv'  &&diff>TOL) r1E++;
     if(r.src==='pend' &&diff>TOL) r2E++;
     // Returns should be negative
