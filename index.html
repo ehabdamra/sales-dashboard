@@ -484,7 +484,7 @@ input[type=date].fdate:focus{border-color:var(--pri)}
             <th class="nm">صافي المبيعات (قبل ض.)</th>
             <th class="nm">الضريبة</th>
             <th class="nm">إجمالي المبيعات (بعد ض.)</th>
-            <th class="nm">معلقة (قبل ض.)</th>
+            <th class="nm">معلقة (شامل ض.)</th>
             <th class="nm">معلقة (بعد ض.)</th>
             <th class="nm">المرتجعات</th>
             <th class="nm">الصافي النهائي</th>
@@ -521,7 +521,7 @@ input[type=date].fdate:focus{border-color:var(--pri)}
             <th class="nm">صافي (قبل ض.)</th>
             <th class="nm">الضريبة</th>
             <th class="nm">إجمالي (بعد ض.)</th>
-            <th class="nm">معلقة (قبل ض.)</th>
+            <th class="nm">معلقة (شامل ض.)</th>
             <th class="nm">معلقة (بعد ض.)</th>
             <th class="nm">مرتجعات</th>
             <th class="nm">الصافي النهائي</th>
@@ -846,7 +846,8 @@ function parseF1(rows){
 // Col: 0=date,1=orderNo,2=orderType,3=cCode,4=cName,
 //      5=netAmt(before disc),6=discAmt,7=taxAmt,8=totalAmt,
 //      9=POno,10=req,11=spName,12=enteredBy,13=entryDate,14=cType
-// NetBT = col5 - col6  |  NetAT = col8
+// NetBT = col5 (Net Amount من النظام — شامل الضريبة)  |  NetAT = col8
+// ملاحظة: col5 يُستخدم مباشرة بدون طرح col6 (الخصومات مدمجة في col5)
 // ═══════════════════════════════════════════════════════════
 function parseF2(rows){
   let cnt=0;
@@ -864,7 +865,7 @@ function parseF2(rows){
     const totAmt=parseFloat(r[8])||0;
     const spName=strVal(r[11]);
     const cType=strVal(r[14]);
-    const netBT=rawNet-disc;  // net before tax = net amount minus discount
+    const netBT=rawNet;  // col5 = Net Amount من النظام (شامل الضريبة — يُستخدم مباشرة)
     const isReturn=/return/i.test(oType);
     // Extract prefix from "JN35- 32332" → "JN35"
     const m=orderNo.match(/^([A-Z]{2}\d+)/);
@@ -1007,7 +1008,7 @@ function renderKPI(){
       <div class="ksub">ضريبة: ${fN(sTax)}</div>
     </div>
     <div class="kcard w">
-      <div class="klbl">طلبيات معلقة (قبل ضريبة)</div>
+      <div class="klbl">طلبيات معلقة (Net المبيعات)</div>
       <div class="kval">${fN(sPBT)}</div>
       <div class="ksub">${pend.length.toLocaleString()} طلبية · مرتجعات معلقة: ${fN(sPRet)}</div>
     </div>
@@ -1017,7 +1018,7 @@ function renderKPI(){
       <div class="ksub">${(invRets.length+pendRets.length).toLocaleString()} مرتجع · مكتملة ${fN(sRet)} · معلقة ${fN(sPRet)}</div>
     </div>
     <div class="kcard g">
-      <div class="klbl">الإجمالي شامل المعلقة (قبل ض.)</div>
+      <div class="klbl">الإجمالي شامل المعلقة (Net)</div>
       <div class="kval">${fN(netFinal+sPBT-sPRet)}</div>
       <div class="ksub">مكتملة + معلقة − مرتجعات معلقة</div>
     </div>
@@ -1060,8 +1061,8 @@ function renderShrTbl(){
   if(titleEl) titleEl.firstChild.nodeValue=(sMode?'📋 ملخص مبيعات المعارض (SHR)':'📋 ملخص مبيعات – '+ftpName)+' ';
   const hdr=document.querySelector('#tShr thead tr');
   if(hdr) hdr.innerHTML=sMode
-    ?'<th>المعرض</th><th>الرمز</th><th class="nm">فواتير</th><th class="nm">صافي المبيعات (قبل ض.)</th><th class="nm">الضريبة</th><th class="nm">إجمالي المبيعات (بعد ض.)</th><th class="nm">معلقة (قبل ض.)</th><th class="nm">معلقة (بعد ض.)</th><th class="nm">المرتجعات</th><th class="nm">الصافي النهائي</th><th class="nm">% من الإجمالي</th>'
-    :'<th>العميل</th><th>الكود</th><th class="nm">فواتير</th><th class="nm">صافي المبيعات (قبل ض.)</th><th class="nm">الضريبة</th><th class="nm">إجمالي المبيعات (بعد ض.)</th><th class="nm">معلقة (قبل ض.)</th><th class="nm">معلقة (بعد ض.)</th><th class="nm">المرتجعات</th><th class="nm">الصافي النهائي</th><th class="nm">% من الإجمالي</th>';
+    ?'<th>المعرض</th><th>الرمز</th><th class="nm">فواتير</th><th class="nm">صافي المبيعات (قبل ض.)</th><th class="nm">الضريبة</th><th class="nm">إجمالي المبيعات (بعد ض.)</th><th class="nm">معلقة (شامل ض.)</th><th class="nm">معلقة (بعد ض.)</th><th class="nm">المرتجعات</th><th class="nm">الصافي النهائي</th><th class="nm">% من الإجمالي</th>'
+    :'<th>العميل</th><th>الكود</th><th class="nm">فواتير</th><th class="nm">صافي المبيعات (قبل ض.)</th><th class="nm">الضريبة</th><th class="nm">إجمالي المبيعات (بعد ض.)</th><th class="nm">معلقة (شامل ض.)</th><th class="nm">معلقة (بعد ض.)</th><th class="nm">المرتجعات</th><th class="nm">الصافي النهائي</th><th class="nm">% من الإجمالي</th>';
 
   const rawA=sMode?aggShr():aggByCust();
   const tot={invC:0,nBT:0,nAT:0,tax:0,pBT:0,pAT:0,ret:0,pRet:0};
